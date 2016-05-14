@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<p>Use this area to provide additional information.</p>
+<div id="content"></div>
+<script>
+    window.onload = function () {
+        var connection = $.hubConnection();
+        var proxy = connection.createHubProxy('TestHub');
+        proxy.on("hello", function (text) {
+            $("#content").append(text);
+        });
+        connection.start().done(function () {
+            proxy.invoke("Hello", "yolo fijnen");
+        });
+    }
+</script>

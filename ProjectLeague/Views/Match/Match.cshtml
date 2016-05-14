@@ -1,0 +1,22 @@
+﻿
+@{
+    ViewBag.Title = "Match";
+}
+
+<h2>Match</h2>
+<div id="content">
+
+</div>
+<script>
+    window.onload = function () {
+        var connection = $.hubConnection();
+        var proxy = connection.createHubProxy('LeagueHub');
+        proxy.on("Position", function (text) {
+            console.log(text);
+            $("#content").append(text);
+        });
+        connection.start().done(function () {
+            proxy.invoke("SendMatchData", 2650020960,"bremme");
+        });
+    }
+</script>

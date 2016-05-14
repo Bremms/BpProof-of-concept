@@ -1,0 +1,47 @@
+﻿@model ProjectLeague.ViewModels.GameContainer
+
+@{
+    ViewBag.Title = "SelectMatch";
+}
+
+<h2>Choose a match</h2>
+
+@foreach (var item in Model.Games)
+{
+    <a href="@Url.Action("SelectMatch", new { matchId = @item.GameId ,sumName = Model.SummonerName, grpName = Model.GroupName}) ">
+        <div class="row @(@item.Won? "win" : "lose" )" id="game">
+
+            <div class="col-md-4">
+                <img src="@Url.Content(item.url)" id="imgChampion" />
+            </div>
+            <div class="col-md-4">
+                <b>@item.ChampionName @item.Title</b>
+                @item.Created
+                <div id="kda">
+                    @item.Kills / @item.Assists / @item.Deaths KDA
+                </div>
+                @item.Duration
+            </div>
+            <div class="col-md-4">
+                <table>
+                    <tr>
+                        <td>Blue</td>
+                        <td>Red</td>
+                    </tr>
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@Url.Content(item.Teams[0].Players[i])" id="imgChampionTable" />
+                            </td>
+                            <td>
+                                <img src="@Url.Content(item.Teams[1].Players[i])" id="imgChampionTable" />
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </a>
+}
+
