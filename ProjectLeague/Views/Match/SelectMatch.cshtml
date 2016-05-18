@@ -5,11 +5,12 @@
 }
 
 <h2>Choose a match</h2>
-
-@foreach (var item in Model.Games)
+@using (Html.BeginForm("SelectMatch", "Match", FormMethod.Post))
 {
-    <a href="@Url.Action("SelectMatch", new { matchId = @item.GameId ,sumName = Model.SummonerName, grpName = Model.GroupName}) ">
-        <div class="row @(@item.Won? "win" : "lose" )" id="game">
+    foreach (var item in Model.Games)
+    {
+    <a href="@Url.Action("SelectMatch", new { matchId = @item.GameId, sumName = Model.SummonerName, grpName = Model.GroupName, isAdmin = true}) " data-form-method="post">
+        <div class="row @(@item.Won ? "win" : "lose" )" id="game">
 
             <div class="col-md-4">
                 <img src="@Url.Content(item.url)" id="imgChampion" />
@@ -32,10 +33,10 @@
                     {
                         <tr>
                             <td>
-                                <img src="@Url.Content(item.Teams[0].Players[i])" id="imgChampionTable" />
+                                <img src="@Url.Content(item.Teams[0].Players[i].ChampionUrl)" id="imgChampionTable" />
                             </td>
                             <td>
-                                <img src="@Url.Content(item.Teams[1].Players[i])" id="imgChampionTable" />
+                                <img src="@Url.Content(item.Teams[1].Players[i].ChampionUrl)" id="imgChampionTable" />
                             </td>
                         </tr>
                     }
@@ -43,5 +44,19 @@
             </div>
         </div>
     </a>
+    }
 }
-
+<script>
+    window.onload = function () {
+        $("a[data-form-method='post']").click(function (event) {
+            event.preventDefault();
+            var element = $(this);
+            var action = element.attr("href");
+            element.closest("form").each(function () {
+                var form = $(this);
+                form.attr("action", action);
+                form.submit();
+            });
+        });
+    }
+</script>

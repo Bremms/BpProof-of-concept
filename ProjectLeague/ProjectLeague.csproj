@@ -44,6 +44,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
       <Private>True</Private>
@@ -57,6 +61,14 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.9.8\lib\net45\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MySql.Data.Entity.EF6, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.Entity.6.9.8\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -200,9 +212,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\LeagueHub.cs" />
     <Compile Include="Hubs\Test.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\DAL\DbEntitiesContext.cs" />
+    <Compile Include="Models\DAL\GroupRepo.cs" />
+    <Compile Include="Models\DAL\UserRepo.cs" />
+    <Compile Include="Models\Group.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -210,13 +228,233 @@
     <Compile Include="ViewModels\CreateGroup.cs" />
     <Compile Include="ViewModels\Game.cs" />
     <Compile Include="ViewModels\GameContainer.cs" />
+    <Compile Include="ViewModels\Match.cs" />
     <Compile Include="ViewModels\Player.cs" />
     <Compile Include="ViewModels\SelectSummoner.cs" />
     <Compile Include="ViewModels\Team.cs" />
+    <Compile Include="ViewModels\Teamcontainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\img\none.png" />
+    <Content Include="Content\img\baron.png" />
+    <Content Include="Content\img\dragon.png" />
+    <Content Include="Content\img\grey.jpg" />
+    <Content Include="Content\img\items\1001.png" />
+    <Content Include="Content\img\items\1004.png" />
+    <Content Include="Content\img\items\1006.png" />
+    <Content Include="Content\img\items\1011.png" />
+    <Content Include="Content\img\items\1018.png" />
+    <Content Include="Content\img\items\1026.png" />
+    <Content Include="Content\img\items\1027.png" />
+    <Content Include="Content\img\items\1028.png" />
+    <Content Include="Content\img\items\1029.png" />
+    <Content Include="Content\img\items\1031.png" />
+    <Content Include="Content\img\items\1033.png" />
+    <Content Include="Content\img\items\1036.png" />
+    <Content Include="Content\img\items\1037.png" />
+    <Content Include="Content\img\items\1038.png" />
+    <Content Include="Content\img\items\1039.png" />
+    <Content Include="Content\img\items\1041.png" />
+    <Content Include="Content\img\items\1042.png" />
+    <Content Include="Content\img\items\1043.png" />
+    <Content Include="Content\img\items\1051.png" />
+    <Content Include="Content\img\items\1052.png" />
+    <Content Include="Content\img\items\1053.png" />
+    <Content Include="Content\img\items\1054.png" />
+    <Content Include="Content\img\items\1055.png" />
+    <Content Include="Content\img\items\1056.png" />
+    <Content Include="Content\img\items\1057.png" />
+    <Content Include="Content\img\items\1058.png" />
+    <Content Include="Content\img\items\1082.png" />
+    <Content Include="Content\img\items\1083.png" />
+    <Content Include="Content\img\items\1400.png" />
+    <Content Include="Content\img\items\1401.png" />
+    <Content Include="Content\img\items\1402.png" />
+    <Content Include="Content\img\items\1408.png" />
+    <Content Include="Content\img\items\1409.png" />
+    <Content Include="Content\img\items\1410.png" />
+    <Content Include="Content\img\items\1412.png" />
+    <Content Include="Content\img\items\1413.png" />
+    <Content Include="Content\img\items\1414.png" />
+    <Content Include="Content\img\items\1416.png" />
+    <Content Include="Content\img\items\1418.png" />
+    <Content Include="Content\img\items\1419.png" />
+    <Content Include="Content\img\items\2003.png" />
+    <Content Include="Content\img\items\2009.png" />
+    <Content Include="Content\img\items\2010.png" />
+    <Content Include="Content\img\items\2015.png" />
+    <Content Include="Content\img\items\2031.png" />
+    <Content Include="Content\img\items\2032.png" />
+    <Content Include="Content\img\items\2033.png" />
+    <Content Include="Content\img\items\2043.png" />
+    <Content Include="Content\img\items\2045.png" />
+    <Content Include="Content\img\items\2047.png" />
+    <Content Include="Content\img\items\2049.png" />
+    <Content Include="Content\img\items\2050.png" />
+    <Content Include="Content\img\items\2051.png" />
+    <Content Include="Content\img\items\2052.png" />
+    <Content Include="Content\img\items\2053.png" />
+    <Content Include="Content\img\items\2054.png" />
+    <Content Include="Content\img\items\2138.png" />
+    <Content Include="Content\img\items\2139.png" />
+    <Content Include="Content\img\items\2140.png" />
+    <Content Include="Content\img\items\2301.png" />
+    <Content Include="Content\img\items\2302.png" />
+    <Content Include="Content\img\items\2303.png" />
+    <Content Include="Content\img\items\3001.png" />
+    <Content Include="Content\img\items\3003.png" />
+    <Content Include="Content\img\items\3004.png" />
+    <Content Include="Content\img\items\3006.png" />
+    <Content Include="Content\img\items\3007.png" />
+    <Content Include="Content\img\items\3008.png" />
+    <Content Include="Content\img\items\3009.png" />
+    <Content Include="Content\img\items\3010.png" />
+    <Content Include="Content\img\items\3020.png" />
+    <Content Include="Content\img\items\3022.png" />
+    <Content Include="Content\img\items\3024.png" />
+    <Content Include="Content\img\items\3025.png" />
+    <Content Include="Content\img\items\3026.png" />
+    <Content Include="Content\img\items\3027.png" />
+    <Content Include="Content\img\items\3028.png" />
+    <Content Include="Content\img\items\3029.png" />
+    <Content Include="Content\img\items\3030.png" />
+    <Content Include="Content\img\items\3031.png" />
+    <Content Include="Content\img\items\3033.png" />
+    <Content Include="Content\img\items\3034.png" />
+    <Content Include="Content\img\items\3035.png" />
+    <Content Include="Content\img\items\3036.png" />
+    <Content Include="Content\img\items\3040.png" />
+    <Content Include="Content\img\items\3041.png" />
+    <Content Include="Content\img\items\3042.png" />
+    <Content Include="Content\img\items\3043.png" />
+    <Content Include="Content\img\items\3044.png" />
+    <Content Include="Content\img\items\3046.png" />
+    <Content Include="Content\img\items\3047.png" />
+    <Content Include="Content\img\items\3048.png" />
+    <Content Include="Content\img\items\3050.png" />
+    <Content Include="Content\img\items\3052.png" />
+    <Content Include="Content\img\items\3053.png" />
+    <Content Include="Content\img\items\3056.png" />
+    <Content Include="Content\img\items\3057.png" />
+    <Content Include="Content\img\items\3060.png" />
+    <Content Include="Content\img\items\3065.png" />
+    <Content Include="Content\img\items\3067.png" />
+    <Content Include="Content\img\items\3068.png" />
+    <Content Include="Content\img\items\3069.png" />
+    <Content Include="Content\img\items\3070.png" />
+    <Content Include="Content\img\items\3071.png" />
+    <Content Include="Content\img\items\3072.png" />
+    <Content Include="Content\img\items\3073.png" />
+    <Content Include="Content\img\items\3074.png" />
+    <Content Include="Content\img\items\3075.png" />
+    <Content Include="Content\img\items\3077.png" />
+    <Content Include="Content\img\items\3078.png" />
+    <Content Include="Content\img\items\3082.png" />
+    <Content Include="Content\img\items\3083.png" />
+    <Content Include="Content\img\items\3084.png" />
+    <Content Include="Content\img\items\3085.png" />
+    <Content Include="Content\img\items\3086.png" />
+    <Content Include="Content\img\items\3087.png" />
+    <Content Include="Content\img\items\3089.png" />
+    <Content Include="Content\img\items\3090.png" />
+    <Content Include="Content\img\items\3091.png" />
+    <Content Include="Content\img\items\3092.png" />
+    <Content Include="Content\img\items\3094.png" />
+    <Content Include="Content\img\items\3096.png" />
+    <Content Include="Content\img\items\3097.png" />
+    <Content Include="Content\img\items\3098.png" />
+    <Content Include="Content\img\items\3100.png" />
+    <Content Include="Content\img\items\3101.png" />
+    <Content Include="Content\img\items\3102.png" />
+    <Content Include="Content\img\items\3104.png" />
+    <Content Include="Content\img\items\3105.png" />
+    <Content Include="Content\img\items\3108.png" />
+    <Content Include="Content\img\items\3110.png" />
+    <Content Include="Content\img\items\3111.png" />
+    <Content Include="Content\img\items\3112.png" />
+    <Content Include="Content\img\items\3113.png" />
+    <Content Include="Content\img\items\3114.png" />
+    <Content Include="Content\img\items\3115.png" />
+    <Content Include="Content\img\items\3116.png" />
+    <Content Include="Content\img\items\3117.png" />
+    <Content Include="Content\img\items\3122.png" />
+    <Content Include="Content\img\items\3123.png" />
+    <Content Include="Content\img\items\3124.png" />
+    <Content Include="Content\img\items\3133.png" />
+    <Content Include="Content\img\items\3134.png" />
+    <Content Include="Content\img\items\3135.png" />
+    <Content Include="Content\img\items\3136.png" />
+    <Content Include="Content\img\items\3137.png" />
+    <Content Include="Content\img\items\3139.png" />
+    <Content Include="Content\img\items\3140.png" />
+    <Content Include="Content\img\items\3142.png" />
+    <Content Include="Content\img\items\3143.png" />
+    <Content Include="Content\img\items\3144.png" />
+    <Content Include="Content\img\items\3145.png" />
+    <Content Include="Content\img\items\3146.png" />
+    <Content Include="Content\img\items\3147.png" />
+    <Content Include="Content\img\items\3151.png" />
+    <Content Include="Content\img\items\3152.png" />
+    <Content Include="Content\img\items\3153.png" />
+    <Content Include="Content\img\items\3155.png" />
+    <Content Include="Content\img\items\3156.png" />
+    <Content Include="Content\img\items\3157.png" />
+    <Content Include="Content\img\items\3158.png" />
+    <Content Include="Content\img\items\3165.png" />
+    <Content Include="Content\img\items\3170.png" />
+    <Content Include="Content\img\items\3174.png" />
+    <Content Include="Content\img\items\3181.png" />
+    <Content Include="Content\img\items\3184.png" />
+    <Content Include="Content\img\items\3185.png" />
+    <Content Include="Content\img\items\3187.png" />
+    <Content Include="Content\img\items\3190.png" />
+    <Content Include="Content\img\items\3191.png" />
+    <Content Include="Content\img\items\3196.png" />
+    <Content Include="Content\img\items\3197.png" />
+    <Content Include="Content\img\items\3198.png" />
+    <Content Include="Content\img\items\3200.png" />
+    <Content Include="Content\img\items\3211.png" />
+    <Content Include="Content\img\items\3222.png" />
+    <Content Include="Content\img\items\3285.png" />
+    <Content Include="Content\img\items\3301.png" />
+    <Content Include="Content\img\items\3302.png" />
+    <Content Include="Content\img\items\3303.png" />
+    <Content Include="Content\img\items\3340.png" />
+    <Content Include="Content\img\items\3341.png" />
+    <Content Include="Content\img\items\3345.png" />
+    <Content Include="Content\img\items\3348.png" />
+    <Content Include="Content\img\items\3361.png" />
+    <Content Include="Content\img\items\3362.png" />
+    <Content Include="Content\img\items\3363.png" />
+    <Content Include="Content\img\items\3364.png" />
+    <Content Include="Content\img\items\3401.png" />
+    <Content Include="Content\img\items\3460.png" />
+    <Content Include="Content\img\items\3461.png" />
+    <Content Include="Content\img\items\3462.png" />
+    <Content Include="Content\img\items\3504.png" />
+    <Content Include="Content\img\items\3508.png" />
+    <Content Include="Content\img\items\3512.png" />
+    <Content Include="Content\img\items\3599.png" />
+    <Content Include="Content\img\items\3671.png" />
+    <Content Include="Content\img\items\3672.png" />
+    <Content Include="Content\img\items\3673.png" />
+    <Content Include="Content\img\items\3675.png" />
+    <Content Include="Content\img\items\3706.png" />
+    <Content Include="Content\img\items\3711.png" />
+    <Content Include="Content\img\items\3715.png" />
+    <Content Include="Content\img\items\3742.png" />
+    <Content Include="Content\img\items\3748.png" />
+    <Content Include="Content\img\items\3751.png" />
+    <Content Include="Content\img\items\3800.png" />
+    <Content Include="Content\img\items\3801.png" />
+    <Content Include="Content\img\items\3802.png" />
+    <Content Include="Content\img\items\3812.png" />
+    <Content Include="Content\img\items\3901.png" />
+    <Content Include="Content\img\items\3902.png" />
+    <Content Include="Content\img\items\3903.png" />
+    <Content Include="Content\img\map.jpg" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -305,7 +543,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>52186</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:52186/</IISUrl>
+          <IISUrl>http://localhost:50800/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

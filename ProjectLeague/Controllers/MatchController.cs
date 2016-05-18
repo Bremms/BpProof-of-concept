@@ -48,9 +48,12 @@ namespace ProjectLeague.Controllers
             }
             
         }
-        public ActionResult SelectMatch(long matchid, string sumName,string grpName)
+        public ActionResult SelectMatch(long matchid, string sumName,string grpName, bool isAdmin)
         {
-            return View("Match");
+            var match = riotApi.GetMatch(Region.euw, matchid, true);
+            List<Team> teams = makeTeams(match.Participants);
+
+            return View("Match",new Teamcontainer() { Teams = teams, GroupName = grpName, SummonerName = sumName, MatchId = matchid, UserName = User.Identity.Name});
         }
         private List<Team> makeTeams(RiotSharp.GameEndpoint.Game game)
         {
@@ -79,5 +82,24 @@ namespace ProjectLeague.Controllers
             }
             return new List<Team>() { t1, t2 };
         }
+        private List<Team> makeTeams(List<RiotSharp.MatchEndpoint.Participant> parts)
+        {
+            Team t1 = new Team() { Teamname="red"};
+            Team t2 = new Team() { Teamname= "blue"};
+            foreach (var player in parts)
+            {
+                var championTemp = allChampions.Champions.Where(w => w.Value.Id == player.ChampionId).FirstOrDefault().Value;
+                if (player.TeamId == 100)
+                {
+                    t1.AddPlayer(championTemp.Key, player.ParticipantId);
+                }
+                else
+                {
+                    t2.AddPlayer(championTemp.Key, player.ParticipantId);
+                }
+            }
+            return new List<Team>() { t1, t2 };
+        }
+
     }
 } 

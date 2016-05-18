@@ -7,18 +7,19 @@ namespace ProjectLeague.ViewModels
 {
     public class Team
     {
-        public List<string> Players { get; set; }
+        public List<Player> Players { get; set; }
+        public string Teamname { get; set; }
         public Team()
         {
-            Players = new List<string>();
+            Players = new List<Player>();
         }
-        public Team(List<string> players)
+        public Team(List<Player> players)
         {
             this.Players = players;
         }
-        public void AddPlayer(string player)
+        public void AddPlayer(string championName,int id=0)
         {
-            Players.Add(String.Format("http://ddragon.leagueoflegends.com/cdn/6.9.1/img/champion/{0}.png", player));
+            Players.Add(new Player(id,championName));
         }
     }
 }
