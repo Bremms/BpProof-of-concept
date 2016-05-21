@@ -6,7 +6,7 @@
 <div class="jumbotron">
     <h1>Project League</h1>
     <p class="lead">Project League is an application to view your match live with your friends!</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Search for groups &raquo;</a></p>
+    <p><a href="@Url.Action("Index","Group")" class="btn btn-primary btn-lg">Search for groups &raquo;</a></p>
 </div>
 @if (TempData["error"] != null)
 {

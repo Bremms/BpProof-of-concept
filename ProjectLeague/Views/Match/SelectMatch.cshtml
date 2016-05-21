@@ -9,7 +9,7 @@
 {
     foreach (var item in Model.Games)
     {
-    <a href="@Url.Action("SelectMatch", new { matchId = @item.GameId, sumName = Model.SummonerName, grpName = Model.GroupName, isAdmin = true}) " data-form-method="post">
+    <a href="@Url.Action("SelectMatch", new { matchId = @item.GameId, grpName = Model.GroupName, isAdmin = true}) " data-form-method="post">
         <div class="row @(@item.Won ? "win" : "lose" )" id="game">
 
             <div class="col-md-4">

@@ -13,12 +13,10 @@
 <div class="match">
     <div class="matchDetails">
         <div class="red-details">
-            <img src="~/Content/img/dragon.png"><img src="~/Content/img/dragon.png">
         </div>
         <div class="blue-details">
-            <img src="~/Content/img/dragon.png"><img src="~/Content/img/baron.png">
         </div>
-        <div class="score">20/20</div>
+        <div class="score">0/0</div>
     </div>
     @foreach (var team in Model.Teams)
     {
@@ -37,12 +35,12 @@
                             <img src="~/Content/img/none.png" id="@player.Id-0">
                         </div>
                         <div class="item">
-                            <img src="~/Content/img/none.png" id="@player.Id-1" >
+                            <img src="~/Content/img/none.png" id="@player.Id-1">
                         </div> <div class="item">
                             <img src="~/Content/img/none.png" id="@player.Id-2">
-                        </div> <div class="item" >
+                        </div> <div class="item">
                             <img src="~/Content/img/none.png" id="@player.Id-3">
-                        </div> <div class="item" >
+                        </div> <div class="item">
                             <img src="~/Content/img/none.png" id="@player.Id-4">
                         </div>
                         <div class="item" id="6">
@@ -52,7 +50,7 @@
                             <img src="~/Content/img/none.png" id="@player.Id-6">
                         </div>
                     </div>
-                    <div class="kda">
+                    <div class="kda" id="@player.Id">
                         0/0/0
                     </div>
                 </div>
@@ -62,7 +60,114 @@
 </div>
 <div id="content"></div>
 <canvas id="canvas" height="400" width="400"></canvas>
+<script src="http://d3js.org/d3.v3.min.js"></script>    
 <script>
+    //todo item destroyed en path berekenen.
+
+    //----------------------------------------------- CANVASINIT -----------------------------------------------
+    domain = {
+        min: {x: -120, y: -120},
+        max: {x: 14870, y: 14980}
+    }
+    width = 400;
+    height = 400;
+    xScale = d3.scale.linear()
+          .domain([domain.min.x, domain.max.x])
+          .range([0, width]);
+
+    yScale = d3.scale.linear()
+          .domain([domain.min.y, domain.max.y])
+          .range([height, 0]);
+    var timeout_handles = [];
+    var ctx = document.getElementById('canvas').getContext('2d');
+    var img1 = new Image();
+    img1.src = "http://ddragon.leagueoflegends.com/cdn/6.9.1/img/champion/Amumu.png";
+    img1.id = "championImg";
+    var Atrox  = new CanvasImage(0,380,20,20,img1,"bremme")
+    var teams = @Html.Raw(@Json.Encode(Model.Teams));
+    var canvasImages = [];
+    var x=[[0,380],[20,380],[0,360],[20,360],[40,360]];
+    for(var i = 0; i<teams.length;i++)
+    {
+        for(var j = 0; j<teams[i].Players.length;j++)
+        {
+            var img1 = new Image();
+            img1.src = "http://ddragon.leagueoflegends.com/cdn/6.9.1/img/champion/"+teams[i].Players[j].Champion+".png";
+            img1.id = "championImg";
+            if(i==1)
+                var cImg  = new CanvasImage(x[j][0],x[j][1],20,20,img1,teams[i].Players[j].Champion)
+            else
+                var cImg  = new CanvasImage(x[j][1],x[j][0],20,20,img1,teams[i].Players[j].Champion)
+            canvasImages.push(cImg);
+        }
+    }
+    function drawImageOnScreen(cImg) // draw a canvasImageObject to the screen
+    {
+        ctx.drawImage(cImg.image,cImg.x,cImg.y,cImg.width,cImg.height);
+    }
+    function CanvasImage(x,y,w,h,img,name){
+        this.image = img;
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+        this.offsetX = x+w;
+        this.offsetY = y+h;
+        this.name = name;
+        this.drawImage = function(){
+            drawImageOnScreen(this);
+        };
+    }
+    function gameLoop()
+    {
+        ctx.clearRect(0,0,400,400);
+        init();
+        window.requestAnimationFrame(function() {
+            gameLoop();
+        });
+        // window.setTimeout(gameLoop,1);
+    }
+    function init(){
+        for(var i = 0;i<canvasImages.length;i++)
+        {
+            canvasImages[i].drawImage();
+        }
+    }
+    function ChampionKilled(position)
+    {
+        var f2 = new Image();
+        f2.src = "../Content/img/death2.png";
+        f2.onload = function(){
+            newImage = new CanvasImage(xScale(position.x),yScale(position.y),20,20,f2,"death");
+            newImage.drawImage();
+            canvasImages.push(newImage);
+        }
+    }
+    function TowerDestroyed(position)
+    {
+        console.log("tower dest");
+        var f2 = new Image();
+        f2.src = "../Content/img/tower.gif";
+        f2.onload = function(){
+            newImage = new CanvasImage(xScale(position.x),yScale(position.y),20,20,f2,"tower");
+            newImage.drawImage();
+            canvasImages.push(newImage);
+        }
+    }
+    function highlight(id,color){
+        var obj = $("#"+id+".participant");
+        var orig = obj.css("background-color");
+        obj.css('background-color',color);
+        if( id in timeout_handles )
+        {
+            clearTimeout( timeout_handles[id] )
+        }
+        timeout_handles[id] = setTimeout(function(){
+            console.log("setting color back to initcolor "+orig);
+            obj.css('background-color','rgba(2, 5, 7, 0.701961)');
+        }, 10000);
+    }
+    //----------------------------------------------- ITEMLOGIC CHAT-----------------------------------------------
     var IsConnected = false;
     var groupName =  @Html.Raw(Json.Encode(Model.GroupName));
     var username = @Html.Raw(Json.Encode(Model.UserName));
@@ -86,8 +191,6 @@
                 }else{
                     var content =  username+"> ";
                     content += chatContent;
-                    console.log(content+"<---");
-                    
                     proxy.invoke("SendMessage",content,groupName);
                 }
             }
@@ -95,12 +198,35 @@
         return false;
     }
     window.onload = function () {
+        gameLoop();
         participants = $(".participant");
-        console.log(participants);
         var connection = $.hubConnection();
         proxy = connection.createHubProxy('LeagueHub');
         chatProxy = connection.createHubProxy('ChatHub');
-        proxy.on("Position", function (text) {
+        proxy.on("Position", function (parts) {
+            for(var i = 0;i<parts.length;i++)
+            {
+                canvasImages[parts[i].participantId-1].x = xScale(parts[i].position.x);
+                canvasImages[parts[i].participantId-1].y = yScale(parts[i].position.y);
+            }
+
+        });
+        proxy.on("EliteMonsterKill", function (killerId,monsterType,position) {
+            console.log(monsterType);
+            var teamDiv = ".red-details";
+            if(killerId>5)
+                teamDiv = ".blue-details";
+            if(monsterType == "DRAGON"){
+                $(teamDiv).append("<img src='/Content/img/dragon.png'>");
+                highlight(killerId,'silver');
+            }
+            else{
+                $(teamDiv).append("<img src='/Content/img/baron.png'>");
+                highlight(killerId,'gold');
+            }
+        });
+        proxy.on("BuildingKill", function (pos) {
+            TowerDestroyed(pos);
         });
         proxy.on("RetrieveMessage",function(content){
             $("#contentChat").append("<p class='chatLine'>"+content+"</p>");
@@ -108,39 +234,112 @@
         );
         proxy.on("ItemPurchased",function(partId,itemId){
             var itemPart = itemDisplayed[partId];
-
+            //sightstone staat hier tussen + raar item 3152
             if(itemId===3340||itemId===3341||itemId===3361||itemId===3362||itemId===3363||itemId===3364||itemId===3340||itemId===3462){
                 $("#"+partId+"-6").attr("src","/Content/img/items/"+itemId+".png");
-                itemDisplayed[partId][6] = itemId;
-            }else{
-                for(var i=0;i<itemPart.length;i++)
-                {
-                    if(itemPart[i]==0)
-                    {
-                        $("#"+partId+"-"+i).attr("src","/Content/img/items/"+itemId+".png");
-                        itemDisplayed[partId][i] = itemId;
-                        break;
-                    }
-                }
-                console.log(itemPart);
-                //$("#contentChat").append("<p class='chatLine'>"+content+"</p>");
-            }}
+            }
+            //else if(itemId == 2003){
+            //    if(itemDisplayed[partId].includes(itemId)){
+            //        console.log("Health pot found");
+            //        var index = itemDisplayed[partId].indexOf(itemId)
+            //        console.log(index + "<--- index health pot");
+            //        $("#"+partId+"-"+index).attr("src","/Content/img/items/"+itemId+"-2.png");
+            //        itemDisplayed[partId][i] = 20032; 
+            //    }
+            //    else if(itemDisplayed[partId].includes(20032)){
+            //        var index = itemDisplayed[partId].indexOf(20032)
+            //        $("#"+partId+"-"+index).attr("src","/Content/img/items/"+itemId+"-3.png");
+            //        itemDisplayed[partId][i] = 20033; 
+            //    }else{
+            //        addItemToChampion(partId,itemId);
+            //    }
+
+            //}
+            else{
+                addItemToChampion(partId,itemId);
+            }
+        }
        );
-        proxy.on("ItemDestroyed",function(partId,itemId){
+        function addItemToChampion(partId,itemId)
+        {
             var itemPart = itemDisplayed[partId];
-            console.log("ITEM PURCHESED " + partId);
+            for(var i=0;i<itemPart.length-1;i++)//last slot always for trinket
+            {
+                if(itemPart[i]==0)
+                {
+                    $("#"+partId+"-"+i).attr("src","/Content/img/items/"+itemId+".png");
+                    itemDisplayed[partId][i] = itemId;
+                    break;
+                }
+            }
+        }
+        function destroyItem(partId,itemId)
+        {
+            var itemPart = itemDisplayed[partId];
             for(var i=0;i<itemPart.length;i++)
             {
                 if(itemPart[i]==itemId)
                 {
-             
+
                     $("#"+partId+"-"+i).attr("src","/Content/img/none.png");
                     itemDisplayed[partId][i] = 0;
                     break;
                 }
             }
-            console.log(itemPart);
-            //$("#contentChat").append("<p class='chatLine'>"+content+"</p>");
+        }
+        proxy.on("ItemDestroyed",function(partId,itemId){
+
+        //if(itemId == 2003){
+        //    if(itemDisplayed[partId].includes(itemId)){
+        //        destroyItem(partId,itemId);
+        //    }
+        //    else if(itemDisplayed[partId].includes(20032)){
+        //        var index = itemDisplayed[partId].indexOf(20032)
+        //        $("#"+partId+"-"+index).attr("src","/Content/img/items/"+itemId+".png");
+        //        itemDisplayed[partId][i] = 20033; 
+        //    }else if(itemDisplayed[partId].includes(20033)){
+        //        var index = itemDisplayed[partId].indexOf(20033)
+        //        $("#"+partId+"-"+index).attr("src","/Content/img/items/"+itemId+"-2.png");
+        //        itemDisplayed[partId][i] = itemId; 
+        //    }
+        //    else{
+                destroyItem(partId,itemId);
+            //}
+
+
+        }
+        //}
+       );
+        proxy.on("ChampionKill",function(killerId,victimId, partIds, position){
+            //killer add kill
+            var query = "#"+killerId+".kda";
+            var kda = $(query).text().split('/');
+            kda[0] = parseInt(kda[0])+1;
+            $(query).html(kda[0]+"/"+kda[1]+"/"+kda[2]);
+            var score = $(".score").text().split("/");
+            var teamId = 0;
+            if(killerId>5)
+                teamId=1;
+            score[teamId] = parseInt(score[teamId])+1;
+            $(".score").html(score[0]+"/"+score[1]);
+            highlight(victimId,'red');
+            highlight(killerId,'green');
+            //victim add death
+            query = "#"+victimId+".kda";
+            kda = $(query).text().split('/');
+            kda[1] = parseInt(kda[1])+1;
+            $(query).html(kda[0]+"/"+kda[1]+"/"+kda[2]);
+            if(partIds!=null)//if there are participants
+            {
+                for(var i = 0;i<partIds.length;i++)
+                {
+                    query = "#"+partIds[i]+".kda";
+                    kda = $(query).text().split('/');
+                    kda[2] = parseInt(kda[2])+1;
+                    $(query).html(kda[0]+"/"+kda[1]+"/"+kda[2]);
+                }
+            }
+            ChampionKilled(position);
         }
        );
         connection.start().done(function () {

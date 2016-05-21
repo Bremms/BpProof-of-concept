@@ -1,4 +1,6 @@
-﻿using ProjectLeague.ViewModels;
+﻿using ProjectLeague.Models;
+using ProjectLeague.Models.DAL;
+using ProjectLeague.ViewModels;
 using RiotSharp;
 using RiotSharp.StaticDataEndpoint;
 using System;
@@ -10,6 +12,7 @@ using System.Web.Mvc;
 
 namespace ProjectLeague.Controllers
 {
+    [Authorize]
     public class MatchController : Controller
     {
         private RiotApi riotApi;
@@ -17,8 +20,8 @@ namespace ProjectLeague.Controllers
         private ChampionListStatic allChampions;
         public MatchController()
         { 
-            riotApi = RiotApi.GetInstance("c888e0ff-55a2-4489-a4c7-e911c1d00730");
-            staticApi = StaticRiotApi.GetInstance("c888e0ff-55a2-4489-a4c7-e911c1d00730");
+            riotApi = RiotApi.GetInstance(Config.API_KEY);
+            staticApi = StaticRiotApi.GetInstance(Config.API_KEY);
             allChampions = staticApi.GetChampions(Region.euw);
         }
         // GET: Match
@@ -48,12 +51,18 @@ namespace ProjectLeague.Controllers
             }
             
         }
-        public ActionResult SelectMatch(long matchid, string sumName,string grpName, bool isAdmin)
+        public async System.Threading.Tasks.Task<ActionResult> SelectMatch(long matchid, string grpName, bool isAdmin)
         {
             var match = riotApi.GetMatch(Region.euw, matchid, true);
             List<Team> teams = makeTeams(match.Participants);
-
-            return View("Match",new Teamcontainer() { Teams = teams, GroupName = grpName, SummonerName = sumName, MatchId = matchid, UserName = User.Identity.Name});
+            using (var ctx = new DbEntitiesContext())
+            {
+                var grpRepo = new GroupRepo(ctx);
+                var group = await grpRepo.FindByNameAsync(grpName);
+                group.Match_id = matchid;
+                await grpRepo.saveChangesAsync();
+            }
+            return View("Match", new Teamcontainer() { Teams = teams, GroupName = grpName, MatchId = matchid, UserName = User.Identity.Name });
         }
         private List<Team> makeTeams(RiotSharp.GameEndpoint.Game game)
         {

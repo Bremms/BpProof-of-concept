@@ -10,6 +10,7 @@ using System.Web.Mvc;
 
 namespace ProjectLeague.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         [HttpGet]

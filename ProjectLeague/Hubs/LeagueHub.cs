@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using RiotSharp;
 using RiotSharp.MatchEndpoint;
 using ProjectLeague.Models.DAL;
+using ProjectLeague.Models;
 
 namespace ProjectLeague.Hubs
 {
@@ -18,7 +19,8 @@ namespace ProjectLeague.Hubs
         }
         public override Task OnDisconnected(bool stopCalled)
         {
-            if (stopCalled)
+            //TODO
+            if (!stopCalled)
             {
                 using (var ctx = new DbEntitiesContext())
                 {
@@ -27,7 +29,7 @@ namespace ProjectLeague.Hubs
                     var group_id = client.Group_id;
                     var count = client.Group.Users.Count;
                     uRepo.Delete(client);
-                    if (count==1)
+                    if (count == 1)
                     {
                         var groupRepo = new GroupRepo(ctx);
                         var group = groupRepo.FindById(group_id);
@@ -47,6 +49,7 @@ namespace ProjectLeague.Hubs
                 var client = uRepo.FindClientById(Context.ConnectionId);
                 client.Nickname = nickname;
                 uRepo.SaveChanges();
+                Clients.Caller.RetrieveMessage("Your nick has changed to: " + nickname);
             }
         }
         public Task GetConnectedUsers(string groupName)
@@ -56,18 +59,18 @@ namespace ProjectLeague.Hubs
                 var groupRepo = new GroupRepo(ctx);
                 var grp = groupRepo.FindByName(groupName);
                 string content = "Users Online: " + grp.Users.Count + " ";
-                foreach(var user in grp.Users)
+                foreach (var user in grp.Users)
                 {
                     content += user.Nickname + " ";
                 }
-                return Clients.Group(groupName).RetrieveMessage(content);
+                return Clients.Caller.RetrieveMessage(content);
             }
         }
         public void Hello()
         {
             Clients.All.hello();
         }
-        public Task Join(string groupname,string username)
+        public Task Join(string groupname, string username)
         {
             Groups.Add(Context.ConnectionId, groupname);
             var c = Context;
@@ -76,12 +79,12 @@ namespace ProjectLeague.Hubs
                 GroupRepo gRepo = new GroupRepo(ctx);
                 UserRepo uRepo = new UserRepo(ctx);
                 var group = gRepo.FindByName(groupname);
-                uRepo.add(new Models.Client() { Connection_id = Context.ConnectionId, Group = group ,Nickname = username});
+                uRepo.add(new Models.Client() { Connection_id = Context.ConnectionId, Group = group, Nickname = username });
 
                 return uRepo.SaveChangesAsync();
             }
         }
-        public Task SendMessage(string content,string grpName)
+        public Task SendMessage(string content, string grpName)
         {
             return Clients.Group(grpName).RetrieveMessage(content);
         }
@@ -89,52 +92,81 @@ namespace ProjectLeague.Hubs
         {
             Task t = Task.Factory.StartNew(() =>
             {
-                 Groups.Add(Context.ConnectionId, groupname);
-            var api = RiotApi.GetInstance("c888e0ff-55a2-4489-a4c7-e911c1d00730");
-            var match = api.GetMatch(Region.euw, match_id, true);
-            TimeSpan last = new TimeSpan();
-            foreach (var frame in match.Timeline.Frames)
-            {
-                if (frame.Events != null)
+                //Groups.Add(Context.ConnectionId, groupname);
+                using (var ctx = new DbEntitiesContext())
                 {
+                    var groupRepo = new GroupRepo(ctx);
+                    var group = groupRepo.FindByName(groupname);
+                    group.IsJoinable = false;
+                    groupRepo.saveChangesAsync();
+                }
+                var api = RiotApi.GetInstance(Config.API_KEY);
+                var match = api.GetMatch(Region.euw, match_id, true);
+                TimeSpan last = new TimeSpan();
+                foreach (var frame in match.Timeline.Frames)
+                {
+                    if (frame.Events != null)
+                    {
 
-                    SendCoordinates(groupname, frame.ParticipantFrames);
-                    for (int i = 0; i < frame.Events.Count; i++)
-                    { 
-                        System.Threading.Thread.Sleep(frame.Events[i].Timestamp - last);
-                        last = frame.Events[i].Timestamp;
-                        switch (frame.Events[i].EventType)
+                        foreach (var event_ in frame.Events)
+                        // for (int i = 0; i < frame.Events.Count; i++)
                         {
-                            
-                            case EventType.BuildingKill:
-                                Clients.Group(groupname).BuildingKill(frame.Events[i]);
-                                break;
-                            case EventType.ChampionKill:
-                                Clients.Group(groupname).ChampionKill(frame.Events[i]);
-                                break;
-                            case EventType.EliteMonsterKill:
-                                Clients.Group(groupname).EliteMonsterKill(frame.Events[i]);
-                                break;
-                            case EventType.ItemPurchased:
-                                Clients.Group(groupname).ItemPurchased(frame.Events[i].ParticipantId,frame.Events[i].ItemId);
-                                break;
-                            case EventType.ItemDestroyed:
-                                Clients.Group(groupname).ItemDestroyed(frame.Events[i].ParticipantId,frame.Events[i].ItemId);
-                                break;
-                            case EventType.ItemSold:
-                                Clients.Group(groupname).ItemDestroyed(frame.Events[i].ParticipantId,frame.Events[i].ItemId);
-                                break;
-                            default:
-                                break;
+                            var time = event_.Timestamp - last;
+                            //if(time.Seconds>0.1)
+                            //{
+                            //    System.Threading.Thread.Sleep(1);
+                            //}
+                            //else
+                            //{
+                            //    System.Threading.Thread.Sleep(frame.Events[i].Timestamp - last);
+                            //}
+
+                            // if (frame.Events[i].Timestamp - last>new TimeSpan())
+                            calculateTime(event_, last);
+                            last = event_.Timestamp;
+                            switch (event_.EventType)
+                            {
+
+                                case EventType.BuildingKill:
+                                    Clients.Group(groupname).BuildingKill(event_.Position);
+                                    break;
+                                case EventType.ChampionKill:
+                                    Clients.Group(groupname).ChampionKill(event_.KillerId, event_.VictimId, event_.AssistingParticipantIds, event_.Position);
+                                    break;
+                                case EventType.EliteMonsterKill:
+                                    Clients.Group(groupname).EliteMonsterKill(event_.KillerId, event_.MonsterType, event_.Position);
+                                    break;
+                                case EventType.ItemPurchased:
+                                    Clients.Group(groupname).ItemPurchased(event_.ParticipantId, event_.ItemId);
+                                    break;
+                                case EventType.ItemDestroyed:
+                                    Clients.Group(groupname).ItemDestroyed(event_.ParticipantId, event_.ItemId);
+                                    break;
+                                case EventType.ItemUndo:
+                                    Clients.Group(groupname).ItemDestroyed(event_.ParticipantId, event_.ItemBefore);
+                                    break;
+                                case EventType.ItemSold:
+                                    Clients.Group(groupname).ItemDestroyed(event_.ParticipantId, event_.ItemId);
+                                    break;
+                                default:
+                                    break;
+
+                            }
 
                         }
-
+                        SendCoordinates(groupname, frame.ParticipantFrames);
                     }
                 }
-            }
             });
             return t;
-           
+
+        }
+        private void calculateTime(Event event_,TimeSpan last)
+        {
+            if(event_.EventType== EventType.BuildingKill|| event_.EventType == EventType.ChampionKill || event_.EventType == EventType.EliteMonsterKill || event_.EventType == EventType.ItemPurchased || event_.EventType == EventType.ItemDestroyed || event_.EventType == EventType.ItemUndo || event_.EventType == EventType.ItemSold)
+            {
+                System.Threading.Thread.Sleep(event_.Timestamp - last);
+            }
         }
         private void SendCoordinates(string groupname, Dictionary<String, ParticipantFrame> frames)
         {

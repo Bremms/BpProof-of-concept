@@ -14,6 +14,7 @@ namespace ProjectLeague.Models
         public virtual List<Client> Users { get; set; }
         public string Name { get; set; }
         public bool IsJoinable { get; set; }
+        public long Match_id { get; set; }
         public Group()
         {
 
