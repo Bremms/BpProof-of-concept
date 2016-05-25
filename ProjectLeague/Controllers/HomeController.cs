@@ -30,11 +30,6 @@ namespace ProjectLeague.Controllers
                 {
                     gRepo.AddGroup(group.Groupname);
                     await gRepo.saveChangesAsync();
-                    //var u = User;
-                    //var hubConn = new HubConnection("http://localhost:50800/signalr");
-                    //var leagueHub = hubConn.CreateHubProxy("LeagueHub");
-                    //await hubConn.Start();
-                    //await Task.Run(()=>leagueHub.Invoke("Join",group.Groupname).Wait());
                 }
                 else
                 {

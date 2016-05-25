@@ -53,16 +53,24 @@ namespace ProjectLeague.Controllers
         }
         public async System.Threading.Tasks.Task<ActionResult> SelectMatch(long matchid, string grpName, bool isAdmin)
         {
-            var match = riotApi.GetMatch(Region.euw, matchid, true);
-            List<Team> teams = makeTeams(match.Participants);
-            using (var ctx = new DbEntitiesContext())
+            try
             {
-                var grpRepo = new GroupRepo(ctx);
-                var group = await grpRepo.FindByNameAsync(grpName);
-                group.Match_id = matchid;
-                await grpRepo.saveChangesAsync();
+                var match = riotApi.GetMatch(Region.euw, matchid, true);
+                List<Team> teams = makeTeams(match.Participants);
+                using (var ctx = new DbEntitiesContext())
+                {
+                    var grpRepo = new GroupRepo(ctx);
+                    var group = await grpRepo.FindByNameAsync(grpName);
+                    group.Match_id = matchid;
+                    await grpRepo.saveChangesAsync();
+                }
+                return View("Match", new Teamcontainer() { Teams = teams, GroupName = grpName, MatchId = matchid, UserName = User.Identity.Name });
             }
-            return View("Match", new Teamcontainer() { Teams = teams, GroupName = grpName, MatchId = matchid, UserName = User.Identity.Name });
+            catch (RiotSharpException ex)
+            {
+                return View("SelectSummoner");
+            }
+
         }
         private List<Team> makeTeams(RiotSharp.GameEndpoint.Game game)
         {

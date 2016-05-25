@@ -212,11 +212,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Hubs\ChatHub.cs" />
     <Compile Include="Hubs\LeagueHub.cs" />
     <Compile Include="Hubs\Test.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\Config.cs" />
     <Compile Include="Models\DAL\DbEntitiesContext.cs" />
     <Compile Include="Models\DAL\GroupRepo.cs" />
     <Compile Include="Models\DAL\UserRepo.cs" />
@@ -601,6 +601,8 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="ClassDiagram1.cd" />
+    <Content Include="ClassDiagram2.cd" />
     <None Include="Scripts\jquery-2.2.3.intellisense.js" />
     <Content Include="Scripts\jquery-2.2.3.js" />
     <Content Include="Scripts\jquery-2.2.3.min.js" />
@@ -627,9 +629,9 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Group\About.cshtml" />
+    <Content Include="Views\Group\Contact.cshtml" />
+    <Content Include="Views\Group\Index.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
     <Content Include="Views\Account\ConfirmEmail.cshtml" />
     <Content Include="Views\Account\ExternalLoginConfirmation.cshtml" />
@@ -653,10 +655,11 @@
     <Content Include="Views\Match\SelectSummoner.cshtml" />
     <Content Include="Views\Match\SelectMatch.cshtml" />
     <Content Include="Views\Match\Match.cshtml" />
-    <Content Include="Views\Group\Index.cshtml" />
+    <Content Include="Views\Group\groups.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Home\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

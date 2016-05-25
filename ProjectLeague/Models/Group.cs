@@ -15,10 +15,14 @@ namespace ProjectLeague.Models
         public string Name { get; set; }
         public bool IsJoinable { get; set; }
         public long Match_id { get; set; }
+
         public Group()
         {
 
         }
-
+        public void AddUser(Client client)
+        {
+            this.Users.Add(client);
+        }
     }
 }

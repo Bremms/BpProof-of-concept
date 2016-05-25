@@ -1,0 +1,60 @@
+﻿@model IEnumerable<ProjectLeague.ViewModels.GroupVm>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+@using (Html.BeginForm("SelectMatch", "Match", FormMethod.Post))
+{
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Name)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UserCount)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.MatchId)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.UserCount)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.MatchId)
+        </td>
+        <td>
+  <a href="@Url.Action("SelectMatch","Match", new { matchId = @item.MatchId, grpName = @item.Name, isAdmin = false }) " data-form-method="post">JOIN</a>
+</td>
+    </tr>
+}
+</table>
+}
+<script>
+    window.onload = function () {
+        $("a[data-form-method='post']").click(function (event) {
+            event.preventDefault();
+            var element = $(this);
+            var action = element.attr("href");
+            element.closest("form").each(function () {
+                var form = $(this);
+                form.attr("action", action);
+                form.submit();
+            });
+        });
+    }
+</script>

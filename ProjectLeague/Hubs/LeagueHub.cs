@@ -20,7 +20,7 @@ namespace ProjectLeague.Hubs
         public override Task OnDisconnected(bool stopCalled)
         {
             //TODO
-            if (!stopCalled)
+            if (stopCalled)
             {
                 using (var ctx = new DbEntitiesContext())
                 {
@@ -80,9 +80,10 @@ namespace ProjectLeague.Hubs
                 UserRepo uRepo = new UserRepo(ctx);
                 var group = gRepo.FindByName(groupname);
                 uRepo.add(new Models.Client() { Connection_id = Context.ConnectionId, Group = group, Nickname = username });
-
+                Clients.Caller.RetrieveMessage("Server> type /start to start the game!");
                 return uRepo.SaveChangesAsync();
             }
+           
         }
         public Task SendMessage(string content, string grpName)
         {
@@ -122,7 +123,7 @@ namespace ProjectLeague.Hubs
                             //}
 
                             // if (frame.Events[i].Timestamp - last>new TimeSpan())
-                            calculateTime(event_, last);
+                            CalculateTime(event_, last);
                             last = event_.Timestamp;
                             switch (event_.EventType)
                             {
@@ -154,14 +155,14 @@ namespace ProjectLeague.Hubs
                             }
 
                         }
-                        SendCoordinates(groupname, frame.ParticipantFrames);
+                            SendCoordinates(groupname, frame.ParticipantFrames);
                     }
                 }
             });
             return t;
 
         }
-        private void calculateTime(Event event_,TimeSpan last)
+        private void CalculateTime(Event event_,TimeSpan last)
         {
             if(event_.EventType== EventType.BuildingKill|| event_.EventType == EventType.ChampionKill || event_.EventType == EventType.EliteMonsterKill || event_.EventType == EventType.ItemPurchased || event_.EventType == EventType.ItemDestroyed || event_.EventType == EventType.ItemUndo || event_.EventType == EventType.ItemSold)
             {
