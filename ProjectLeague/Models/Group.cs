@@ -7,7 +7,7 @@ using System.Web;
 
 namespace ProjectLeague.Models
 {
-    [Table("group")]
+    [Table("Groups")]
     public class Group
     {
         public int Id { get; set; }

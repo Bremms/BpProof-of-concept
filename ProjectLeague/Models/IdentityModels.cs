@@ -23,7 +23,7 @@ namespace ProjectLeague.Models
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
-            : base("mysqlCon", throwIfV1Schema: false)
+            : base("sqlCon", throwIfV1Schema: false)
         {
         }
 

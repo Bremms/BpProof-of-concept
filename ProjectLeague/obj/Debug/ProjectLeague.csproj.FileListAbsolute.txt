@@ -164,3 +164,6 @@ C:\Users\bremme\Documents\BpProof-of-concept\ProjectLeague\bin\MySql.Data.dll
 C:\Users\bremme\Documents\BpProof-of-concept\ProjectLeague\bin\MySql.Data.Entity.EF6.dll
 C:\Users\bremme\Documents\BpProof-of-concept\ProjectLeague\bin\Microsoft.AspNet.SignalR.Client.dll
 C:\Users\bremme\Documents\BpProof-of-concept\ProjectLeague\bin\Microsoft.AspNet.SignalR.Client.xml
+C:\Users\bremme\Documents\BpProof-of-concept\ProjectLeague\obj\Debug\ProjectLeague.Migrations.initial.resources
+C:\Users\bremme\Documents\BpProof-of-concept\ProjectLeague\obj\Debug\ProjectLeague.csproj.GenerateResource.Cache
+C:\Users\bremme\Documents\BpProof-of-concept\ProjectLeague\obj\Debug\ProjectLeague.Migrations.postmortem.resources

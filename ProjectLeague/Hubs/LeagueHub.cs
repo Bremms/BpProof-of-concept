@@ -24,19 +24,22 @@ namespace ProjectLeague.Hubs
             {
                 using (var ctx = new DbEntitiesContext())
                 {
-                    UserRepo uRepo = new UserRepo(ctx);
-                    var client = uRepo.FindClientById(Context.ConnectionId);
-                    var group_id = client.Group_id;
-                    var count = client.Group.Users.Count;
-                    uRepo.Delete(client);
-                    if (count == 1)
-                    {
-                        var groupRepo = new GroupRepo(ctx);
-                        var group = groupRepo.FindById(group_id);
-                        groupRepo.Delete(group);
-                        //TODO : group verwijderen
-                    }
-                    uRepo.SaveChanges();
+                    GroupRepo gRepo = new GroupRepo(ctx);
+                    gRepo.RemoveClientFromGroup(Context.ConnectionId);
+                    gRepo.SaveChanges();
+                    //UserRepo uRepo = new UserRepo(ctx);
+                    //var client = uRepo.FindClientById(Context.ConnectionId);
+                    //var group_id = client.Group_id;
+                    //var count = client.Group.Users.Count;
+                    //uRepo.Delete(client);
+                    //if (count == 1)
+                    //{
+                    //    var groupRepo = new GroupRepo(ctx);
+                    //    var group = groupRepo.FindById(group_id);
+                    //    groupRepo.Delete(group);
+                    //    //TODO : group verwijderen
+                    //}
+                    //uRepo.SaveChanges();
                 }
             }
             return base.OnDisconnected(stopCalled);
@@ -59,6 +62,7 @@ namespace ProjectLeague.Hubs
                 var groupRepo = new GroupRepo(ctx);
                 var grp = groupRepo.FindByName(groupName);
                 string content = "Users Online: " + grp.Users.Count + " ";
+                groupRepo.SaveChanges();
                 foreach (var user in grp.Users)
                 {
                     content += user.Nickname + " ";
@@ -77,11 +81,13 @@ namespace ProjectLeague.Hubs
             using (var ctx = new DbEntitiesContext())
             {
                 GroupRepo gRepo = new GroupRepo(ctx);
-                UserRepo uRepo = new UserRepo(ctx);
+                //UserRepo uRepo = new UserRepo(ctx);
                 var group = gRepo.FindByName(groupname);
-                uRepo.add(new Models.Client() { Connection_id = Context.ConnectionId, Group = group, Nickname = username });
-                Clients.Caller.RetrieveMessage("Server> type /start to start the game!");
-                return uRepo.SaveChangesAsync();
+                gRepo.AddClientToGroup(groupname, new Models.Client() { Connection_id = Context.ConnectionId, Group = group, Nickname = username });
+                //uRepo.add(new Models.Client() { Connection_id = Context.ConnectionId, Group = group, Nickname = username });
+                gRepo.SaveChanges();
+                return Clients.Caller.RetrieveMessage("Server> type /start to start the game!");
+                
             }
            
         }

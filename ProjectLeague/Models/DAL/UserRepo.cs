@@ -11,6 +11,7 @@ namespace ProjectLeague.Models.DAL
     {
         private DbEntitiesContext ctx;
         private DbSet<Client> users;
+
         public UserRepo(DbEntitiesContext ctx)
         {
             this.ctx = ctx;

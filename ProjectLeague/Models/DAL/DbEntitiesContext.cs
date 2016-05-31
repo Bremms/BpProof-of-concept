@@ -9,7 +9,9 @@ namespace ProjectLeague.Models.DAL
 {
     public class DbEntitiesContext : DbContext
     {
-        public DbEntitiesContext() : base("mysqlCon") { }
+        public DbEntitiesContext() : base("sqlCon") {
+            Database.SetInitializer<DbEntitiesContext>(null);
+        }
         public DbSet<Group> Groups { get; set; }
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Client> Clients { get; set; }
